@@ -6,6 +6,8 @@ import {
   isAiConfigured,
 } from '../services/aiService.js';
 import { canAccessLead, addActivity } from '../utils/leadHelpers.js';
+import { emitSocketEvent } from '../utils/socket.js';
+import { sendAdminNotification } from '../services/emailService.js';
 
 export const getAiStatus = (req, res) => {
   res.status(200).json({
@@ -35,6 +37,18 @@ export const analyzeLeadById = async (req, res, next) => {
       metadata: { leadScore: analysis.leadScore, priority: analysis.priority },
     });
     await lead.save();
+
+    // Emit Real-Time Event & Notifications
+    emitSocketEvent('ai:analyzed', {
+      type: 'ai_analysis_complete',
+      lead,
+      analysis,
+    });
+    emitSocketEvent('dashboard:counters', { action: 'ai_analyzed' });
+
+    if (analysis.priority === 'High') {
+      sendAdminNotification(lead);
+    }
 
     res.status(200).json({
       success: true,

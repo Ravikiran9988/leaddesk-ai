@@ -1,4 +1,5 @@
-import Lead from '../models/Lead.js';
+import Lead, { LEAD_SOURCES } from '../models/Lead.js';
+import User from '../models/User.js';
 import {
   addActivity,
   buildLeadQuery,
@@ -9,6 +10,12 @@ import {
   normalizeStatus,
 } from '../utils/leadHelpers.js';
 import * as XLSX from 'xlsx';
+import { emitSocketEvent } from '../utils/socket.js';
+import {
+  sendCustomerConfirmation,
+  sendAdminNotification,
+  sendAssignmentNotification,
+} from '../services/emailService.js';
 
 const populateLead = (query) =>
   query
@@ -33,10 +40,20 @@ export const createLead = async (req, res, next) => {
     });
     await lead.save();
 
+    const populatedLead = await populateLead(Lead.findById(lead._id));
+
+    // Emit Real-Time Socket Event
+    emitSocketEvent('lead:created', populatedLead);
+    emitSocketEvent('dashboard:counters', { action: 'lead_created' });
+
+    // Send Async Emails
+    sendCustomerConfirmation(populatedLead);
+    sendAdminNotification(populatedLead);
+
     res.status(201).json({
       success: true,
       message: 'Lead submitted successfully. We will contact you soon!',
-      data: lead,
+      data: populatedLead,
     });
   } catch (error) {
     next(error);
@@ -114,6 +131,160 @@ export const getLeads = async (req, res, next) => {
   }
 };
 
+export const getLeadAnalytics = async (req, res, next) => {
+  try {
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const [
+      totalLeads,
+      todayLeads,
+      monthlyLeads,
+      highPriority,
+      wonDeals,
+      lostDeals,
+      statusStats,
+      sourceStats,
+      priorityStats,
+      allLeadsForRevenue,
+      monthlyTimeline,
+    ] = await Promise.all([
+      Lead.countDocuments(),
+      Lead.countDocuments({ createdAt: { $gte: startOfToday } }),
+      Lead.countDocuments({ createdAt: { $gte: startOfMonth } }),
+      Lead.countDocuments({ 'aiAnalysis.priority': 'High' }),
+      Lead.countDocuments({ status: 'Won' }),
+      Lead.countDocuments({ status: 'Lost' }),
+      Lead.aggregate([{ $group: { _id: '$status', count: { $sum: 1 } } }]),
+      Lead.aggregate([{ $group: { _id: '$source', count: { $sum: 1 } } }]),
+      Lead.aggregate([{ $group: { _id: '$aiAnalysis.priority', count: { $sum: 1 } } }]),
+      Lead.find({}, 'status budget aiAnalysis.estimatedDealValue'),
+      Lead.aggregate([
+        {
+          $group: {
+            _id: {
+              year: { $year: '$createdAt' },
+              month: { $month: '$createdAt' },
+              status: '$status',
+            },
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { '_id.year': 1, '_id.month': 1 } },
+      ]),
+    ]);
+
+    const budgetMap = {
+      'Below $500': 350,
+      '$500-$1000': 750,
+      '$1000-$5000': 3000,
+      'Above $5000': 7500,
+    };
+
+    let estimatedRevenue = 0;
+    allLeadsForRevenue.forEach((l) => {
+      if (l.aiAnalysis?.estimatedDealValue && l.aiAnalysis.estimatedDealValue > 0) {
+        estimatedRevenue += l.aiAnalysis.estimatedDealValue;
+      } else if (l.budget && budgetMap[l.budget]) {
+        estimatedRevenue += budgetMap[l.budget];
+      }
+    });
+
+    const closedDeals = wonDeals + lostDeals;
+    const conversionRate =
+      closedDeals > 0
+        ? parseFloat(((wonDeals / closedDeals) * 100).toFixed(1))
+        : totalLeads > 0
+        ? parseFloat(((wonDeals / totalLeads) * 100).toFixed(1))
+        : 0;
+
+    const statusCounts = buildStatusStats(statusStats);
+    const statusDistribution = Object.keys(statusCounts).map((status) => ({
+      name: status,
+      count: statusCounts[status] || 0,
+    }));
+
+    const sourceDistribution = (LEAD_SOURCES || ['Website', 'LinkedIn', 'Instagram', 'Referral', 'Walk-in']).map(
+      (src) => {
+        const found = sourceStats.find((s) => s._id === src);
+        return { source: src, count: found ? found.count : 0 };
+      }
+    );
+
+    const priorityDistribution = ['High', 'Medium', 'Low'].map((p) => {
+      const found = priorityStats.find((s) => s._id === p);
+      return { priority: p, count: found ? found.count : 0 };
+    });
+
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthlyMap = {};
+
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = `${d.getFullYear()}-${d.getMonth() + 1}`;
+      const label = `${monthNames[d.getMonth()]} ${
+        d.getFullYear() !== now.getFullYear() ? d.getFullYear().toString().slice(2) : ''
+      }`.trim();
+      monthlyMap[key] = { month: label, count: 0, won: 0, lost: 0 };
+    }
+
+    monthlyTimeline.forEach((item) => {
+      const key = `${item._id.year}-${item._id.month}`;
+      if (monthlyMap[key]) {
+        monthlyMap[key].count += item.count;
+        if (item._id.status === 'Won') monthlyMap[key].won += item.count;
+        if (item._id.status === 'Lost') monthlyMap[key].lost += item.count;
+      }
+    });
+
+    const monthlyLeadsData = Object.values(monthlyMap);
+    const wonVsLostData = Object.values(monthlyMap).map((m) => ({
+      month: m.month,
+      won: m.won,
+      lost: m.lost,
+    }));
+
+    const revenueByStageMap = {};
+    allLeadsForRevenue.forEach((l) => {
+      const st = normalizeStatus(l.status);
+      const val = l.aiAnalysis?.estimatedDealValue || budgetMap[l.budget] || 500;
+      revenueByStageMap[st] = (revenueByStageMap[st] || 0) + val;
+    });
+
+    const revenueData = Object.keys(revenueByStageMap).map((stage) => ({
+      stage,
+      value: revenueByStageMap[stage],
+    }));
+
+    res.status(200).json({
+      success: true,
+      data: {
+        cards: {
+          totalLeads,
+          todayLeads,
+          monthlyLeads,
+          highPriority,
+          wonDeals,
+          lostDeals,
+          estimatedRevenue,
+          conversionRate,
+        },
+        charts: {
+          monthlyLeads: monthlyLeadsData,
+          statusDistribution,
+          sourceDistribution,
+          priorityDistribution,
+          revenue: revenueData,
+          wonVsLost: wonVsLostData,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getLeadById = async (req, res, next) => {
   try {
     const lead = await populateLead(Lead.findById(req.params.id));
@@ -150,8 +321,11 @@ export const updateLead = async (req, res, next) => {
       updates.assignedTo = null;
     }
     const activities = [];
+    let isStatusChanged = false;
+    let isAssignmentChanged = false;
 
     if (updates.status && updates.status !== lead.status) {
+      isStatusChanged = true;
       activities.push({
         type: 'status_changed',
         description: `Status changed from ${normalizeStatus(lead.status)} to ${normalizeStatus(updates.status)}`,
@@ -161,6 +335,7 @@ export const updateLead = async (req, res, next) => {
     }
 
     if (updates.assignedTo !== undefined && updates.assignedTo?.toString() !== lead.assignedTo?.toString()) {
+      isAssignmentChanged = true;
       activities.push({
         type: 'assigned',
         description: updates.assignedTo ? 'Lead assigned to a team member' : 'Lead unassigned',
@@ -205,6 +380,30 @@ export const updateLead = async (req, res, next) => {
 
     const populated = await populateLead(Lead.findById(lead._id));
 
+    // Real-Time Socket Events & Notifications
+    if (isStatusChanged) {
+      emitSocketEvent('lead:updated', {
+        type: 'status_changed',
+        lead: populated,
+        oldStatus: lead.status,
+        newStatus: updates.status,
+      });
+    }
+
+    if (isAssignmentChanged) {
+      emitSocketEvent('lead:assigned', {
+        type: 'assigned',
+        lead: populated,
+        assignedTo: populated.assignedTo,
+      });
+
+      if (populated.assignedTo) {
+        sendAssignmentNotification(populated, populated.assignedTo);
+      }
+    }
+
+    emitSocketEvent('dashboard:counters', { action: 'lead_updated' });
+
     res.status(200).json({
       success: true,
       message: 'Lead updated successfully',
@@ -226,6 +425,8 @@ export const deleteLead = async (req, res, next) => {
     if (!lead) {
       return res.status(404).json({ success: false, message: 'Lead not found' });
     }
+
+    emitSocketEvent('dashboard:counters', { action: 'lead_deleted' });
 
     res.status(200).json({
       success: true,
@@ -265,6 +466,12 @@ export const addLeadNote = async (req, res, next) => {
     await lead.save();
 
     const populated = await populateLead(Lead.findById(lead._id));
+
+    emitSocketEvent('lead:note_added', {
+      type: 'note_added',
+      lead: populated,
+      note: populated.notes[0],
+    });
 
     res.status(201).json({
       success: true,

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { leadService } from '../services/leadService';
 import { getErrorMessage } from '../utils/constants';
+import { useSocket } from '../context/SocketContext';
 
 const defaultStats = {
   total: 0,
@@ -16,9 +17,33 @@ const defaultStats = {
   closed: 0,
 };
 
+const defaultAnalytics = {
+  cards: {
+    totalLeads: 0,
+    todayLeads: 0,
+    monthlyLeads: 0,
+    highPriority: 0,
+    wonDeals: 0,
+    lostDeals: 0,
+    estimatedRevenue: 0,
+    conversionRate: 0,
+  },
+  charts: {
+    monthlyLeads: [],
+    statusDistribution: [],
+    sourceDistribution: [],
+    priorityDistribution: [],
+    revenue: [],
+    wonVsLost: [],
+  },
+};
+
 export const useLeads = () => {
+  const { socket } = useSocket();
   const [leads, setLeads] = useState([]);
   const [stats, setStats] = useState(defaultStats);
+  const [analyticsData, setAnalyticsData] = useState(defaultAnalytics);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
   const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 10, totalPages: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -54,9 +79,49 @@ export const useLeads = () => {
     }
   }, [filters]);
 
+  const fetchAnalytics = useCallback(async () => {
+    setAnalyticsLoading(true);
+    try {
+      const { data } = await leadService.getAnalytics();
+      setAnalyticsData(data.data);
+    } catch (err) {
+      console.warn('Failed to fetch analytics:', err);
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchLeads();
   }, [fetchLeads]);
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, [fetchAnalytics]);
+
+  // Real-time socket event listeners to keep counters & dashboard fresh
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleRealtimeUpdate = () => {
+      fetchLeads();
+      fetchAnalytics();
+    };
+
+    socket.on('lead:created', handleRealtimeUpdate);
+    socket.on('lead:updated', handleRealtimeUpdate);
+    socket.on('lead:assigned', handleRealtimeUpdate);
+    socket.on('dashboard:counters', handleRealtimeUpdate);
+    socket.on('ai:analyzed', handleRealtimeUpdate);
+
+    return () => {
+      socket.off('lead:created', handleRealtimeUpdate);
+      socket.off('lead:updated', handleRealtimeUpdate);
+      socket.off('lead:assigned', handleRealtimeUpdate);
+      socket.off('dashboard:counters', handleRealtimeUpdate);
+      socket.off('ai:analyzed', handleRealtimeUpdate);
+    };
+  }, [socket, fetchLeads, fetchAnalytics]);
 
   const updateFilters = (newFilters) => {
     setFilters((prev) => ({ ...prev, ...newFilters, page: newFilters.page ?? 1 }));
@@ -84,6 +149,7 @@ export const useLeads = () => {
     const { data } = await leadService.update(id, payload);
     setLeads((prev) => prev.map((lead) => (lead._id === id ? data.data : lead)));
     await fetchLeads();
+    await fetchAnalytics();
     return data.data;
   };
 
@@ -92,6 +158,7 @@ export const useLeads = () => {
   const deleteLead = async (id) => {
     await leadService.delete(id);
     await fetchLeads();
+    await fetchAnalytics();
   };
 
   const addNote = async (id, content) => {
@@ -125,6 +192,8 @@ export const useLeads = () => {
   return {
     leads,
     stats,
+    analyticsData,
+    analyticsLoading,
     pagination,
     loading,
     error,
@@ -137,6 +206,9 @@ export const useLeads = () => {
     addNote,
     uploadFile,
     exportLeads,
-    refetch: fetchLeads,
+    refetch: () => {
+      fetchLeads();
+      fetchAnalytics();
+    },
   };
 };

@@ -1,18 +1,45 @@
 import { body } from 'express-validator';
 import { LEAD_STATUSES, LEAD_SOURCES } from '../models/Lead.js';
 
+export const strongPasswordRegex =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
 export const loginValidation = [
   body('email')
     .trim()
     .notEmpty()
     .withMessage('Email is required')
     .isEmail()
-    .withMessage('Please provide a valid email'),
+    .withMessage('Please provide a valid email')
+    .normalizeEmail(),
+  body('password').notEmpty().withMessage('Password is required'),
+];
+
+export const createUserValidation = [
+  body('name')
+    .trim()
+    .notEmpty()
+    .withMessage('Name is required')
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Name must be between 2 and 100 characters'),
+  body('email')
+    .trim()
+    .notEmpty()
+    .withMessage('Email is required')
+    .isEmail()
+    .withMessage('Please provide a valid email')
+    .normalizeEmail(),
   body('password')
     .notEmpty()
     .withMessage('Password is required')
-    .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters'),
+    .matches(strongPasswordRegex)
+    .withMessage(
+      'Password must be at least 8 characters long and contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character (@$!%*?&)'
+    ),
+  body('role')
+    .optional()
+    .isIn(['admin', 'manager', 'sales_executive'])
+    .withMessage('Invalid role specified'),
 ];
 
 export const createLeadValidation = [
@@ -20,14 +47,15 @@ export const createLeadValidation = [
     .trim()
     .notEmpty()
     .withMessage('Name is required')
-    .isLength({ min: 2 })
-    .withMessage('Name must be at least 2 characters'),
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Name must be between 2 and 100 characters'),
   body('email')
     .trim()
     .notEmpty()
     .withMessage('Email is required')
     .isEmail()
-    .withMessage('Please provide a valid email'),
+    .withMessage('Please provide a valid email')
+    .normalizeEmail(),
   body('budget')
     .notEmpty()
     .withMessage('Budget is required')
@@ -37,8 +65,8 @@ export const createLeadValidation = [
     .trim()
     .notEmpty()
     .withMessage('Message is required')
-    .isLength({ min: 10 })
-    .withMessage('Message must be at least 10 characters'),
+    .isLength({ min: 10, max: 5000 })
+    .withMessage('Message must be between 10 and 5000 characters'),
   body('source')
     .optional()
     .isIn(LEAD_SOURCES)
@@ -70,13 +98,14 @@ export const updateLeadValidation = [
   body('name')
     .optional()
     .trim()
-    .isLength({ min: 2 })
-    .withMessage('Name must be at least 2 characters'),
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Name must be between 2 and 100 characters'),
   body('email')
     .optional()
     .trim()
     .isEmail()
-    .withMessage('Please provide a valid email'),
+    .withMessage('Please provide a valid email')
+    .normalizeEmail(),
   body('budget')
     .optional()
     .isIn(['Below $500', '$500-$1000', '$1000-$5000', 'Above $5000'])
@@ -84,8 +113,8 @@ export const updateLeadValidation = [
   body('message')
     .optional()
     .trim()
-    .isLength({ min: 10 })
-    .withMessage('Message must be at least 10 characters'),
+    .isLength({ min: 10, max: 5000 })
+    .withMessage('Message must be between 10 and 5000 characters'),
 ];
 
 export const addNoteValidation = [

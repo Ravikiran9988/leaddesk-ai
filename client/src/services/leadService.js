@@ -9,6 +9,7 @@ export const authService = {
 export const leadService = {
   create: (data) => api.post('/leads', data),
   getAll: (params) => api.get('/leads', { params }),
+  getAnalytics: () => api.get('/leads/analytics'),
   getById: (id) => api.get(`/leads/${id}`),
   update: (id, data) => api.patch(`/leads/${id}`, data),
   delete: (id) => api.delete(`/leads/${id}`),

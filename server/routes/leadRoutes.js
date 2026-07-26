@@ -8,6 +8,7 @@ import {
   addLeadNote,
   exportLeads,
   uploadLeadFile,
+  getLeadAnalytics,
 } from '../controllers/leadController.js';
 import {
   createLeadValidation,
@@ -22,6 +23,7 @@ const router = express.Router();
 
 router.post('/', createLeadValidation, validate, createLead);
 router.get('/export', protect, crmAccess, exportLeads);
+router.get('/analytics', protect, crmAccess, getLeadAnalytics);
 router.get('/', protect, crmAccess, getLeads);
 router.get('/:id', protect, crmAccess, getLeadById);
 router.patch('/:id', protect, crmAccess, updateLeadValidation, validate, updateLead);
