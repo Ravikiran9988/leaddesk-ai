@@ -250,39 +250,39 @@ Infrastructure
 
 1. Visitor opens Landing Page
 
-↓
+         ↓
 
 2. Visitor submits Lead Form
 
-↓
+         ↓
 
 3. Lead stored in MongoDB
 
-↓
+         ↓
 
 4. Admin logs into Dashboard
 
-↓
+         ↓
 
 5. Dashboard displays KPIs
 
-↓
+         ↓
 
 6. AI analyzes Lead
 
-↓
+         ↓
 
 7. AI generates Priority Score
 
-↓
+         ↓
 
 8. Admin updates Lead
 
-↓
+         ↓
 
 9. AI creates Follow-up Email
 
-↓
+         ↓
 
 10. Lead converted into Customer
 ---
