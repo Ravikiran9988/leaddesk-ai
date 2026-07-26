@@ -28,6 +28,8 @@ const server = http.createServer(app);
 
 const allowedOrigins = [
   process.env.CLIENT_URL,
+  'https://lead-desk.app',
+  'https://www.lead-desk.app',
   'http://localhost:5173',
   'http://localhost:4173',
   'http://localhost:3000',
