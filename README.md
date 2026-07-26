@@ -15,30 +15,30 @@ An enterprise-grade, production-ready MERN stack Customer Relationship Managemen
 ```mermaid
 flowchart TB
     subgraph Client ["Client (React 19 + Vite + TailwindCSS)"]
-        UI[Enterprise Dashboard & Kanban]
-        SocketClient[Socket.IO Client]
-        ThemeCtx[Dark Mode & Notification Context]
+        UI["Enterprise Dashboard & Kanban"]
+        SocketClient["Socket.IO Client"]
+        ThemeCtx["Dark Mode & Notification Context"]
     end
 
     subgraph Nginx ["Nginx Web Server"]
-        ReverseProxy[Reverse Proxy / API Gateway]
+        ReverseProxy["Reverse Proxy / API Gateway"]
     end
 
     subgraph Backend ["Backend API (Node.js + Express)"]
-        RateLimit[Security & Rate Limiter Middleware]
-        Swagger[/docs Swagger OpenAPI UI]
-        Controllers[MVC Controllers & Service Layer]
-        SocketServer[Socket.IO Engine]
+        RateLimit["Security & Rate Limiter Middleware"]
+        Swagger["/docs Swagger OpenAPI UI"]
+        Controllers["MVC Controllers & Service Layer"]
+        SocketServer["Socket.IO Engine"]
     end
 
     subgraph External ["External Services"]
-        Groq[Groq AI SDK Llama-3]
-        Mailer[Nodemailer Email Transport]
-        Cloudinary[Cloudinary Storage]
+        Groq["Groq AI SDK Llama-3"]
+        Mailer["Nodemailer Email Transport"]
+        Cloudinary["Cloudinary Storage"]
     end
 
     subgraph Database ["Database"]
-        MongoDB[(MongoDB Database)]
+        MongoDB[("MongoDB Database")]
     end
 
     Client <--> ReverseProxy
