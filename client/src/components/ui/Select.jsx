@@ -7,7 +7,7 @@ const Select = ({
   id,
   ...props
 }) => {
-  const selectId = id || props.name;
+  const selectId = id || props.name || (label ? `select-${label.toLowerCase().replace(/[^a-z0-9]/g, '-')}` : undefined);
 
   return (
     <div className={`space-y-1.5 ${className}`}>

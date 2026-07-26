@@ -5,7 +5,7 @@ const Input = ({
   id,
   ...props
 }) => {
-  const inputId = id || props.name;
+  const inputId = id || props.name || (label ? `input-${label.toLowerCase().replace(/[^a-z0-9]/g, '-')}` : undefined);
 
   return (
     <div className={`space-y-1.5 ${className}`}>

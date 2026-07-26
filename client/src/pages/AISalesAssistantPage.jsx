@@ -173,7 +173,7 @@ const AISalesAssistantPage = () => {
               disabled={loading}
               className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 disabled:opacity-50 dark:border-slate-800 dark:bg-slate-900 dark:text-white dark:placeholder:text-slate-500"
             />
-            <Button type="submit" disabled={!input.trim() || loading} loading={loading}>
+            <Button type="submit" aria-label="Send" title="Send" disabled={!input.trim() || loading} loading={loading}>
               <Send className="h-4 w-4" />
             </Button>
           </form>

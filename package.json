@@ -8,7 +8,17 @@
     "dev:client": "npm run dev --prefix client",
     "seed": "npm run seed --prefix server"
   },
-  "keywords": ["mern", "react", "express", "mongodb", "leads"],
+  "keywords": [
+    "mern",
+    "react",
+    "express",
+    "mongodb",
+    "leads"
+  ],
   "author": "Digital Heroes",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.62.0",
+    "@types/node": "^26.1.1"
+  }
 }

@@ -6,7 +6,7 @@ const Textarea = ({
   rows = 4,
   ...props
 }) => {
-  const textareaId = id || props.name;
+  const textareaId = id || props.name || (label ? `textarea-${label.toLowerCase().replace(/[^a-z0-9]/g, '-')}` : undefined);
 
   return (
     <div className={`space-y-1.5 ${className}`}>
