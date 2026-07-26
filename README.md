@@ -262,8 +262,8 @@ The following table documents all active API endpoints implemented in the Expres
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/Ravikiran9988/ai-leaddesk-mini.git
-cd ai-leaddesk-mini
+git clone https://github.com/Ravikiran9988/leaddesk-ai.git
+cd leaddesk-ai
 ```
 
 ### 2. Install Dependencies
