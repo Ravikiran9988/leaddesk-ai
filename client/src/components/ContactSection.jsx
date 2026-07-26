@@ -4,11 +4,11 @@ import Input from './ui/Input';
 import Select from './ui/Select';
 import Textarea from './ui/Textarea';
 import Button from './ui/Button';
-import { BUDGET_OPTIONS } from '../utils/constants';
+import { BUDGET_OPTIONS, SOURCE_OPTIONS } from '../utils/constants';
 import { leadService } from '../services/leadService';
 
 const ContactSection = () => {
-  const [form, setForm] = useState({ name: '', email: '', budget: '', message: '' });
+  const [form, setForm] = useState({ name: '', email: '', budget: '', message: '', source: 'Website' });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -22,7 +22,7 @@ const ContactSection = () => {
     try {
       await leadService.create(form);
       setSuccess('Thanks! Your lead has been submitted successfully.');
-      setForm({ name: '', email: '', budget: '', message: '' });
+      setForm({ name: '', email: '', budget: '', message: '', source: 'Website' });
     } catch (err) {
       setError(err.response?.data?.message || 'Unable to submit your lead right now.');
     } finally {
@@ -49,6 +49,9 @@ const ContactSection = () => {
             </div>
             <div className="mt-4">
               <Select label="Budget" name="budget" options={BUDGET_OPTIONS} value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} required />
+            </div>
+            <div className="mt-4">
+              <Select label="How did you hear about us?" name="source" options={SOURCE_OPTIONS} value={form.source} onChange={(e) => setForm({ ...form, source: e.target.value })} required />
             </div>
             <div className="mt-4">
               <Textarea label="Project Brief" name="message" rows={5} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} required />

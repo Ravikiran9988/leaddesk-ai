@@ -35,3 +35,19 @@ export const adminOnly = (req, res, next) => {
   }
   next();
 };
+
+export const managerOrAdmin = (req, res, next) => {
+  if (!['admin', 'manager'].includes(req.user?.role)) {
+    return res.status(403).json({ success: false, message: 'Access denied. Manager or Admin only.' });
+  }
+  next();
+};
+
+export const authorize = (...roles) => (req, res, next) => {
+  if (!roles.includes(req.user?.role)) {
+    return res.status(403).json({ success: false, message: 'Access denied. Insufficient permissions.' });
+  }
+  next();
+};
+
+export const crmAccess = authorize('admin', 'manager', 'sales_executive');

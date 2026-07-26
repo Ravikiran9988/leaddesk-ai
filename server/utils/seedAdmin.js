@@ -4,30 +4,48 @@ import User from '../models/User.js';
 
 dotenv.config();
 
+const seedUsers = [
+  {
+    name: 'Admin',
+    email: 'admin@aileaddesk.com',
+    password: 'Password123@',
+    role: 'admin',
+  },
+  {
+    name: 'Sales Manager',
+    email: 'manager@aileaddesk.com',
+    password: 'Password123@',
+    role: 'manager',
+  },
+  {
+    name: 'Sales Executive',
+    email: 'sales@aileaddesk.com',
+    password: 'Password123@',
+    role: 'sales_executive',
+  },
+];
+
 const seedAdmin = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('Connected to MongoDB');
 
-    const adminEmail = 'admin@aileaddesk.com';
-    const existingAdmin = await User.findOne({ email: adminEmail });
+    for (const userData of seedUsers) {
+      const existing = await User.findOne({ email: userData.email });
 
-    if (existingAdmin) {
-      console.log('Admin user already exists. Skipping seed.');
-    } else {
-      await User.create({
-        name: 'Admin',
-        email: adminEmail,
-        password: 'Password123@',
-        role: 'admin',
-      });
-      console.log('Admin user created successfully!');
-      console.log('Email: admin@aileaddesk.com');
-      console.log('Password: Password123@');
+      if (existing) {
+        console.log(`User ${userData.email} already exists. Skipping.`);
+      } else {
+        await User.create(userData);
+        console.log(`Created ${userData.role}: ${userData.email}`);
+      }
     }
 
+    console.log('\nDefault credentials (Password123@ for all):');
+    seedUsers.forEach((u) => console.log(`  ${u.role}: ${u.email}`));
+
     await mongoose.disconnect();
-    console.log('Disconnected from MongoDB');
+    console.log('\nDisconnected from MongoDB');
     process.exit(0);
   } catch (error) {
     console.error('Seed error:', error.message);

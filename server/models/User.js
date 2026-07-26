@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
+export const USER_ROLES = ['admin', 'manager', 'sales_executive'];
+
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -23,8 +25,8 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['admin'],
-      default: 'admin',
+      enum: USER_ROLES,
+      default: 'sales_executive',
     },
   },
   { timestamps: true }

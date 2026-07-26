@@ -2,21 +2,31 @@ import express from 'express';
 import {
   createLead,
   getLeads,
+  getLeadById,
   updateLead,
   deleteLead,
+  addLeadNote,
+  exportLeads,
+  uploadLeadFile,
 } from '../controllers/leadController.js';
 import {
   createLeadValidation,
   updateLeadValidation,
+  addNoteValidation,
 } from '../validators/authValidator.js';
 import { validate } from '../middleware/validateMiddleware.js';
-import { protect, adminOnly } from '../middleware/authMiddleware.js';
+import { protect, crmAccess } from '../middleware/authMiddleware.js';
+import { upload } from '../middleware/uploadMiddleware.js';
 
 const router = express.Router();
 
 router.post('/', createLeadValidation, validate, createLead);
-router.get('/', protect, adminOnly, getLeads);
-router.patch('/:id', protect, adminOnly, updateLeadValidation, validate, updateLead);
-router.delete('/:id', protect, adminOnly, deleteLead);
+router.get('/export', protect, crmAccess, exportLeads);
+router.get('/', protect, crmAccess, getLeads);
+router.get('/:id', protect, crmAccess, getLeadById);
+router.patch('/:id', protect, crmAccess, updateLeadValidation, validate, updateLead);
+router.delete('/:id', protect, crmAccess, deleteLead);
+router.post('/:id/notes', protect, crmAccess, addNoteValidation, validate, addLeadNote);
+router.post('/:id/upload', protect, crmAccess, upload.single('file'), uploadLeadFile);
 
 export default router;
