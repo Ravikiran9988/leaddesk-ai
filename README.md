@@ -35,14 +35,16 @@
 - [License](#-license)
 
 ---
-
 ## 🌐 Live Demo
-
-- **Local Host Application**: `http://127.0.0.1:5174` (Frontend Client)
-- **Backend API Gateway**: `http://localhost:5000/api`
-- **Continuous Demo Recording**: Saved at `test-results/demo-video.webm`
-- **Interactive HTML Test Report**: Viewable via `npx playwright show-report`
-
+ 
+| Environment | URL |
+| :--- | :--- |
+| **Frontend (Production)** | `https://lead-desk.app` *(replace/remove if not actually deployed here)* |
+| **Backend API (Production)** | `https://leaddesk-ai-aqja.onrender.com/api` *(replace/remove if not actually deployed here)* |
+| **Frontend (Local Dev)** | `http://127.0.0.1:5174` |
+| **Backend API (Local Dev)** | `http://localhost:5000/api` |
+| **Demo Video Recording** | `test-results/demo-video.webm` |
+| **Interactive HTML Test Report** | `npx playwright show-report` |
 ---
 
 ## 📋 Project Overview
