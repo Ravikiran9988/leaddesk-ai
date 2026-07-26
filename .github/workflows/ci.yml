@@ -1,0 +1,53 @@
+name: LeadDesk AI CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      # -------------------------
+      # Backend
+      # -------------------------
+
+      - name: Install Server Dependencies
+        working-directory: server
+        run: npm install
+
+      - name: Run Server Tests
+        working-directory: server
+        run: npm test
+
+      # -------------------------
+      # Frontend
+      # -------------------------
+
+      - name: Install Client Dependencies
+        working-directory: client
+        run: npm install
+
+      - name: Build React App
+        working-directory: client
+        run: npm run build

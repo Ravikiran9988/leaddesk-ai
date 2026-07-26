@@ -79,48 +79,48 @@ const UsersPage = () => {
 
   return (
     <AdminLayout title="User Management" subtitle="Manage admin, manager, and sales executive accounts">
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <UserCog className="h-5 w-5 text-brand-600" />
-            <h2 className="text-lg font-semibold text-slate-900">Team Members</h2>
+            <UserCog className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Team Members</h2>
           </div>
           <Button onClick={openCreate}>
-            <Plus className="mr-2 h-4 w-4" />
+            <Plus className="mr-1.5 h-4 w-4" />
             Add User
           </Button>
         </div>
 
         {loading ? (
-          <p className="text-sm text-slate-500">Loading users...</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Loading users...</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-              <thead className="bg-slate-50 text-slate-600">
+            <table className="min-w-full divide-y divide-slate-200 text-left text-sm dark:divide-slate-800">
+              <thead className="bg-slate-50 text-slate-600 dark:bg-slate-800/60 dark:text-slate-300">
                 <tr>
-                  <th className="px-4 py-3 font-medium">Name</th>
-                  <th className="px-4 py-3 font-medium">Email</th>
-                  <th className="px-4 py-3 font-medium">Role</th>
-                  <th className="px-4 py-3 font-medium">Actions</th>
+                  <th className="px-4 py-3.5 font-bold">Name</th>
+                  <th className="px-4 py-3.5 font-bold">Email</th>
+                  <th className="px-4 py-3.5 font-bold">Role</th>
+                  <th className="px-4 py-3.5 font-bold">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
-                {users.map((user) => (
-                  <tr key={user._id} className="hover:bg-slate-50">
-                    <td className="px-4 py-4 font-medium text-slate-900">{user.name}</td>
-                    <td className="px-4 py-4 text-slate-600">{user.email}</td>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
+                {users.map((u) => (
+                  <tr key={u._id} className="hover:bg-slate-50/80 transition-colors dark:hover:bg-slate-800/50">
+                    <td className="px-4 py-4 font-bold text-slate-900 dark:text-white">{u.name}</td>
+                    <td className="px-4 py-4 text-slate-600 dark:text-slate-300">{u.email}</td>
                     <td className="px-4 py-4">
-                      <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-medium ${ROLE_COLORS[user.role]}`}>
-                        {USER_ROLES[user.role]}
+                      <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-semibold ${ROLE_COLORS[u.role]}`}>
+                        {USER_ROLES[u.role]}
                       </span>
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm" onClick={() => openEdit(user)}>
+                        <Button variant="outline" size="sm" onClick={() => openEdit(u)}>
                           Edit
                         </Button>
-                        <Button variant="danger" size="sm" onClick={() => handleDelete(user._id)}>
-                          <Trash2 className="h-4 w-4" />
+                        <Button variant="danger" size="sm" onClick={() => handleDelete(u._id)}>
+                          <Trash2 className="h-3.5 w-3.5" />
                         </Button>
                       </div>
                     </td>
@@ -159,15 +159,17 @@ const UsersPage = () => {
             required={!editingUser}
           />
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">Role</label>
+            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+              Role
+            </label>
             <select
-              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 transition-colors focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
               value={form.role}
               onChange={(e) => setForm({ ...form, role: e.target.value })}
               required
             >
               {Object.entries(USER_ROLES).map(([key, label]) => (
-                <option key={key} value={key}>
+                <option key={key} value={key} className="dark:bg-slate-900 dark:text-white">
                   {label}
                 </option>
               ))}

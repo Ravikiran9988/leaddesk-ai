@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react';
 import {
   Users,
   Calendar,
@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { StatCardSkeleton } from './ui/Skeleton';
 
-const DashboardCards = ({ stats = {}, loading = false }) => {
+const DashboardCards = memo(({ stats = {}, loading = false }) => {
   const cards = useMemo(
     () => [
       {
@@ -130,7 +130,6 @@ const DashboardCards = ({ stats = {}, loading = false }) => {
                 {card.value}
               </span>
             </div>
-            {/* Gradient accent line on bottom hover */}
             <div
               className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${card.gradient} opacity-0 transition-opacity duration-300 group-hover:opacity-100`}
             />
@@ -139,6 +138,7 @@ const DashboardCards = ({ stats = {}, loading = false }) => {
       })}
     </div>
   );
-};
+});
 
 export default DashboardCards;
+

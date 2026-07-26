@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Filter, X } from 'lucide-react';
 import Input from './ui/Input';
 import Select from './ui/Select';
@@ -10,7 +11,7 @@ import {
   BUDGET_OPTIONS,
 } from '../utils/constants';
 
-const LeadFilters = ({ filters, assignees, onChange, onReset }) => {
+const LeadFilters = memo(({ filters, assignees = [], onChange, onReset }) => {
   const hasActiveFilters =
     filters.status ||
     filters.priority ||
@@ -22,10 +23,10 @@ const LeadFilters = ({ filters, assignees, onChange, onReset }) => {
     filters.dateTo;
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+    <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 dark:border-slate-800 dark:bg-slate-900/80">
       <div className="mb-3 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
-          <Filter className="h-4 w-4" />
+        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+          <Filter className="h-3.5 w-3.5 text-indigo-500" />
           Advanced Filters
         </div>
         {hasActiveFilters && (
@@ -36,7 +37,7 @@ const LeadFilters = ({ filters, assignees, onChange, onReset }) => {
         )}
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
         <Select
           placeholder="All statuses"
           options={['', ...STATUS_OPTIONS]}
@@ -62,13 +63,13 @@ const LeadFilters = ({ filters, assignees, onChange, onReset }) => {
           onChange={(e) => onChange({ source: e.target.value, page: 1 })}
         />
         <select
-          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-500"
+          className="w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 transition-colors focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
           value={filters.assignedTo}
           onChange={(e) => onChange({ assignedTo: e.target.value, page: 1 })}
         >
-          <option value="">All assignees</option>
+          <option value="" className="dark:bg-slate-900 dark:text-white">All assignees</option>
           {assignees.map((user) => (
-            <option key={user._id} value={user._id}>
+            <option key={user._id} value={user._id} className="dark:bg-slate-900 dark:text-white">
               {user.name}
             </option>
           ))}
@@ -92,6 +93,6 @@ const LeadFilters = ({ filters, assignees, onChange, onReset }) => {
       </div>
     </div>
   );
-};
+});
 
 export default LeadFilters;

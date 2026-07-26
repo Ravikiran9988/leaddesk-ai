@@ -10,19 +10,19 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in"
+        className="absolute inset-0 bg-black/60 backdrop-blur-xs animate-fade-in"
         onClick={onClose}
         aria-hidden="true"
       />
       <div
-        className={`relative w-full ${sizes[size]} bg-white rounded-2xl shadow-2xl animate-fade-in-up`}
+        className={`relative w-full ${sizes[size]} rounded-2xl border border-slate-200 bg-white shadow-2xl animate-fade-in-up dark:border-slate-800 dark:bg-slate-900`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
       >
         {title && (
-          <div className="px-6 pt-6 pb-4 border-b border-slate-100">
-            <h3 id="modal-title" className="text-lg font-semibold text-slate-900">
+          <div className="border-b border-slate-100 px-6 py-4 dark:border-slate-800">
+            <h3 id="modal-title" className="text-lg font-bold text-slate-900 dark:text-white">
               {title}
             </h3>
           </div>

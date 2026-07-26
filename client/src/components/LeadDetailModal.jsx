@@ -141,32 +141,32 @@ const LeadDetailModal = ({
 
   return (
     <Modal isOpen={!!lead} onClose={onClose} title="Lead Details" size="lg">
-      <div className="space-y-6">
+      <div className="space-y-6 max-h-[80vh] overflow-y-auto pr-1 scrollbar-none">
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Name</p>
-            <p className="mt-1 font-semibold text-slate-900">{localLead.name}</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Name</p>
+            <p className="mt-1 font-bold text-slate-900 dark:text-white">{localLead.name}</p>
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Email</p>
-            <p className="mt-1">{localLead.email}</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Email</p>
+            <p className="mt-1 text-slate-700 dark:text-slate-300">{localLead.email}</p>
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Budget</p>
-            <p className="mt-1">{localLead.budget}</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Budget</p>
+            <p className="mt-1 text-slate-700 dark:text-slate-300">{localLead.budget}</p>
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Created</p>
-            <p className="mt-1">{formatDate(localLead.createdAt)}</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Created</p>
+            <p className="mt-1 text-slate-700 dark:text-slate-300">{formatDate(localLead.createdAt)}</p>
           </div>
         </div>
 
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Message</p>
-          <p className="mt-1 leading-relaxed text-slate-700">{localLead.message}</p>
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Message</p>
+          <p className="mt-1 leading-relaxed text-slate-700 dark:text-slate-200">{localLead.message}</p>
         </div>
 
-        <div className="grid gap-4 border-t border-slate-100 pt-6 sm:grid-cols-2">
+        <div className="grid gap-4 border-t border-slate-100 pt-6 dark:border-slate-800 sm:grid-cols-2">
           <Select
             label="Status"
             options={STATUS_OPTIONS}
@@ -187,15 +187,17 @@ const LeadDetailModal = ({
             onChange={(e) => setForm({ ...form, category: e.target.value })}
           />
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">Assigned To</label>
+            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+              Assigned To
+            </label>
             <select
-              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 transition-colors focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
               value={form.assignedTo}
               onChange={(e) => setForm({ ...form, assignedTo: e.target.value })}
             >
-              <option value="">Unassigned</option>
+              <option value="" className="dark:bg-slate-900 dark:text-white">Unassigned</option>
               {assignees.map((u) => (
-                <option key={u._id} value={u._id}>
+                <option key={u._id} value={u._id} className="dark:bg-slate-900 dark:text-white">
                   {u.name} ({u.role.replace('_', ' ')})
                 </option>
               ))}
@@ -204,15 +206,15 @@ const LeadDetailModal = ({
         </div>
 
         <div>
-          <p className="mb-2 text-sm font-medium text-slate-700">Tags</p>
+          <p className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Tags</p>
           <TagsInput tags={form.tags} onChange={(tags) => setForm({ ...form, tags })} />
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${STATUS_COLORS[form.status]}`}>
+          <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${STATUS_COLORS[form.status]}`}>
             {form.status}
           </span>
-          <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${SOURCE_COLORS[form.source]}`}>
+          <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${SOURCE_COLORS[form.source]}`}>
             {form.source}
           </span>
         </div>
@@ -223,19 +225,19 @@ const LeadDetailModal = ({
           </Button>
           {canDeleteLeads(user?.role) && (
             <Button variant="danger" onClick={handleDelete}>
-              <Trash2 className="mr-2 h-4 w-4" />
+              <Trash2 className="mr-1.5 h-4 w-4" />
               Delete
             </Button>
           )}
         </div>
 
-        <div className="border-t border-slate-100 pt-6">
-          <h3 className="mb-3 text-sm font-semibold text-slate-900">Notes</h3>
+        <div className="border-t border-slate-100 pt-6 dark:border-slate-800">
+          <h3 className="mb-3 text-sm font-bold text-slate-900 dark:text-white">Notes</h3>
           <NotesPanel notes={localLead.notes} onAddNote={handleAddNote} loading={noteLoading} />
         </div>
 
-        <div className="border-t border-slate-100 pt-6">
-          <h3 className="mb-3 text-sm font-semibold text-slate-900">Attachments</h3>
+        <div className="border-t border-slate-100 pt-6 dark:border-slate-800">
+          <h3 className="mb-3 text-sm font-bold text-slate-900 dark:text-white">Attachments</h3>
           <div className="space-y-2">
             {(localLead.attachments || []).map((file) => (
               <a
@@ -243,26 +245,26 @@ const LeadDetailModal = ({
                 href={file.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm text-brand-600 hover:bg-brand-50"
+                className="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-indigo-600 hover:bg-indigo-50 dark:border-slate-800 dark:text-indigo-400 dark:hover:bg-slate-800"
               >
                 <ExternalLink className="h-4 w-4" />
                 {file.filename}
               </a>
             ))}
           </div>
-          <label className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-slate-300 px-4 py-3 text-sm text-slate-600 hover:border-brand-400 hover:text-brand-600">
+          <label className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-slate-300 px-4 py-3 text-sm text-slate-600 hover:border-indigo-400 hover:text-indigo-600 dark:border-slate-800 dark:text-slate-400 dark:hover:border-indigo-500 dark:hover:text-indigo-300">
             <Upload className="h-4 w-4" />
             {uploading ? 'Uploading...' : 'Upload file'}
             <input type="file" className="hidden" onChange={handleUpload} disabled={uploading} />
           </label>
         </div>
 
-        <div className="border-t border-slate-100 pt-6">
-          <h3 className="mb-3 text-sm font-semibold text-slate-900">Activity Timeline</h3>
+        <div className="border-t border-slate-100 pt-6 dark:border-slate-800">
+          <h3 className="mb-3 text-sm font-bold text-slate-900 dark:text-white">Activity Timeline</h3>
           <ActivityTimeline activities={localLead.activities} />
         </div>
 
-        <div className="border-t border-slate-100 pt-6">
+        <div className="border-t border-slate-100 pt-6 dark:border-slate-800">
           <LeadAnalysisPanel
             analysis={localLead.aiAnalysis}
             onAnalyze={handleAnalyze}
@@ -271,7 +273,7 @@ const LeadDetailModal = ({
           />
         </div>
 
-        <div className="border-t border-slate-100 pt-6">
+        <div className="border-t border-slate-100 pt-6 dark:border-slate-800">
           <FollowUpEmailGenerator
             email={localLead.followUpEmail}
             onGenerate={handleGenerateEmail}

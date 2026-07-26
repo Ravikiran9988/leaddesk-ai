@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -64,7 +64,7 @@ const CustomTooltip = ({ active, payload, label, prefix = '', suffix = '' }) => 
   return null;
 };
 
-const AnalyticsCharts = ({ chartsData = {}, loading = false }) => {
+const AnalyticsCharts = memo(({ chartsData = {}, loading = false }) => {
   const { isDarkMode } = useTheme();
 
   const textColor = isDarkMode ? '#94a3b8' : '#64748b';
@@ -233,6 +233,7 @@ const AnalyticsCharts = ({ chartsData = {}, loading = false }) => {
       </div>
     </div>
   );
-};
+});
 
 export default AnalyticsCharts;
+

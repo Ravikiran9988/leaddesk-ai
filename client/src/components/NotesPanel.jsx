@@ -24,20 +24,20 @@ const NotesPanel = ({ notes = [], onAddNote, loading }) => {
           onChange={(e) => setContent(e.target.value)}
         />
         <Button type="submit" size="sm" loading={loading} disabled={!content.trim()}>
-          <Send className="mr-2 h-4 w-4" />
+          <Send className="mr-1.5 h-3.5 w-3.5" />
           Add Note
         </Button>
       </form>
 
-      <div className="max-h-64 space-y-3 overflow-y-auto">
+      <div className="max-h-64 space-y-3 overflow-y-auto pr-1">
         {notes.length === 0 ? (
-          <p className="text-sm text-slate-500">No notes yet.</p>
+          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">No notes yet.</p>
         ) : (
           notes.map((note) => (
-            <div key={note._id} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-              <p className="text-sm leading-relaxed text-slate-700">{note.content}</p>
-              <p className="mt-2 text-xs text-slate-400">
-                {note.createdBy?.name || 'Unknown'} · {formatDate(note.createdAt)}
+            <div key={note._id} className="rounded-xl border border-slate-200 bg-slate-50 p-3.5 dark:border-slate-800 dark:bg-slate-900">
+              <p className="text-sm leading-relaxed text-slate-800 dark:text-slate-200">{note.content}</p>
+              <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
+                {note.createdBy?.name || 'Unknown'} &bull; {formatDate(note.createdAt)}
               </p>
             </div>
           ))
