@@ -455,7 +455,7 @@ Contributions are welcome! Please follow these steps to contribute:
 
 **Ravikiran**
 - **GitHub**: [@Ravikiran9988](https://github.com/Ravikiran9988)
-- **LinkedIn**: [Ravikiran Profile](https://linkedin.com/in/medicharlaravikiran)
+- **LinkedIn**: [Ravikiran Profile](https://www.linkedin.com/in/medicharla-ravi-kiran)
 
 ---
 
